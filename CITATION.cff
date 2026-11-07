@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software or the manuscript, please cite them as below."
+title: "TAMPRC: Monte Carlo study of a steam-assisted pipeline cleaning crawler (tamprc-pipeline-crawler-mc)"
+version: "1.0.0"
+date-released: "2026-11-07"
+license: MIT
+repository-code: "https://github.com/sandlerleon/tamprc-pipeline-crawler-mc"
+doi: "10.5281/zenodo.24045599"
+authors:
+  - family-names: Sandler
+    given-names: Leon
+    orcid: "https://orcid.org/0009-0007-4584-808X"
+    affiliation: "Independent Researcher"
+preferred-citation:
+  type: article
+  title: "Thermal Shielding, Melt Kinetics and Surge Control of a Steam-Assisted Pipeline Cleaning Crawler: A Monte Carlo Study and Its Deployment Limits"
+  authors:
+    - family-names: Sandler
+      given-names: Leon
+  notes: "Manuscript prepared for Applied Thermal Engineering; archived at 10.5281/zenodo.24045595"
