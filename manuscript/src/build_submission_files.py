@@ -40,7 +40,7 @@ d.add_paragraph("Independent Researcher, Northbrook, Illinois, USA")
 d.add_paragraph("ORCID: https://orcid.org/0009-0007-4584-808X")
 d.add_paragraph("Corresponding author: Leon Sandler, sandler.leon@gmail.com")
 for t in ("Author contributions (CRediT): Leon Sandler, sole author: conceptualization, methodology, software, formal analysis, writing – original draft, writing – review and editing.",
-          "Funding: this work received no external funding.",
+          "Funding: This work received no external funding.",
           "Declaration of competing interest: the author declares no competing interests. The concept was prepared as a response to a public scouting challenge; the author has no financial relationship with its seeker or platform.",
           "Declaration of generative AI and AI-assisted technologies in the writing process: a generative AI tool (Claude, Anthropic) assisted with code development, numerical experiments, drafting and editing. The author checked all of it and takes full responsibility for the content.",
           "Data availability: the code, the data of every figure and table and the manuscript are archived at https://doi.org/%s (software, all versions) and https://doi.org/%s (manuscript, all versions), and are available at %s." % (DOIS["code_concept"], DOIS["paper_concept"], GITHUB)):

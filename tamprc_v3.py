@@ -10,7 +10,7 @@ Added in this revision, in the order of the referee priorities:
   dynfilm   dynamic retained melt film, ds/dt = melt production - gravity drainage, coupled to the heat flux through the film
   sobol     global variance-based sensitivity (Sobol, Jansen estimator) of the pack temperature, the range and the steam use
   corr      sensitivity of the conclusions to correlation between inputs (Gaussian copula)
-  design    constrained design search and Pareto set (range, steam per metre, hull size, thermal margin)
+  design    constrained design search and Pareto set (range, steam per meter, hull size, thermal margin)
   envelope  feasible region against pipe size and pipe temperature
   ptcompat  steam saturation pressure against flange ratings; revised operating envelope
 
@@ -406,7 +406,7 @@ def study_sobol(m_thermal=9, m_melt=13):
     rh = sobol_indices(f_t, ppf_t, m=m_thermal - 1, nboot=20)
     out["convergence"] = {"pack_temperature_45min": dict(m_full=m_thermal, m_half=m_thermal - 1, max_abs_diff_ST=float(np.max(np.abs(np.array(r["ST"]) - np.array(rh["ST"])))), max_abs_diff_S1=float(np.max(np.abs(np.array(r["S1"]) - np.array(rh["S1"])))),
                                                        max_ci_halfwidth_ST=float(np.max(0.5 * (np.array(r["ST_ci"][1]) - np.array(r["ST_ci"][0])))))}
-    # melt: range and steam per metre; the retained film is an assumed lognormal input (median 0.2 mm, sigma 1.0) in the first case and zero in the second
+    # melt: range and steam per meter; the retained film is an assumed lognormal input (median 0.2 mm, sigma 1.0) in the first case and zero in the second
     names_m = ["deposit thickness", "melt point", "deposit density", "latent heat", "pipe temperature", "heat-coupling fraction", "non-condensable factor", "contact length", "steam temperature", "condensation multiplier", "retained film"]
     ppf_m = [lambda u: np.clip(np.exp(np.log(6e-3) + 0.5 * nrm(u)), 1e-3, 40e-3), lambda u: np.clip(58 + 8 * nrm(u), 40, 90), lambda u: 850 + 40 * nrm(u), lambda u: np.clip(2e5 + 3e4 * nrm(u), 1e5, 3e5),
              lambda u: 25 + 5 * nrm(u), lambda u: 0.15 + 0.35 * u, lambda u: 0.5 + 0.5 * u, lambda u: 0.3 + 0.5 * u, lambda u: np.clip(198 + 3 * nrm(u), 185, 204), lambda u: np.exp(0.15 * nrm(u)),
@@ -620,7 +620,7 @@ def fig_bench(bst, bcond, hm):
 
 def fig_sobol(sob):
     fig, ax = plt.subplots(1, 3, figsize=(7.8, 2.9))
-    for a, (key, title) in zip(ax, (("pack_temperature_45min", "(a) pack temperature, 45 min"), ("range_with_film", "(b) range (film assumed lognormal)"), ("steam_with_film", "(c) steam per metre"))):
+    for a, (key, title) in zip(ax, (("pack_temperature_45min", "(a) pack temperature, 45 min"), ("range_with_film", "(b) range (film assumed lognormal)"), ("steam_with_film", "(c) steam per meter"))):
         d = sob[key]; nm = d["names"]; ST = np.array(d["ST"]); S1 = np.array(d["S1"]); o = np.argsort(ST)
         a.barh(np.arange(len(nm)) + .2, ST[o], .38, color=C4, label="total"); a.barh(np.arange(len(nm)) - .2, S1[o], .38, color=C1, label="first order")
         a.set_yticks(range(len(nm))); a.set_yticklabels([nm[i] for i in o], fontsize=6.2); a.set_xlabel("Sobol index"); a.set_title(title, fontsize=8.5)
@@ -672,7 +672,7 @@ def fig_envelope(env, pt):
 
 
 def study_ice():
-    """First-order thermal energy per metre of 12 in line for an ice-slurry route under stated assumptions (slurry volume as a fraction f_s of the line volume, ice fraction phi, latent heat 334 kJ/kg,
+    """First-order thermal energy per meter of 12 in line for an ice-slurry route under stated assumptions (slurry volume as a fraction f_s of the line volume, ice fraction phi, latent heat 334 kJ/kg,
     ice density 917 kg/m3, carrier water cooled from 15 C, refrigeration coefficient of performance 2.5).  Illustrative bounds, not a model of ice pigging."""
     A = math.pi / 4 * T.pipe_id(12) ** 2
     rows = []

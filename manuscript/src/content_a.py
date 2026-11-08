@@ -15,7 +15,7 @@ add(("p", "Thermal mobilization with steam is an obvious alternative to abrasion
 add(("p", "The first suite of the study (thermal shield, melt kinetics, surge, maintenance lattice) was written as a design-screening model and is retained unchanged in the repository. This paper re-examines its assumptions in the order that matters "
           "for a thermal-engineering reader. (i) The melt model assumed that molten deposit leaves the surface at once. Allowing a retained liquid film adds a conduction resistance, which we express as a dimensionless group $\\Pi_f=hs/k_l$, "
           "and we predict the film with a dynamic balance of melt production and gravity drainage instead of prescribing it. (ii) The condensation correlation was derived for the outside of a horizontal tube; we compare it with an internal-flow correlation and "
-          "a non-condensable-gas limit. (iii) The melt-time formulas and the conduction solver are benchmarked against an independent enthalpy-method solver, the exact Neumann solution and an independent stiff-ODE integration. "
+          "a noncondensable-gas limit. (iii) The melt-time formulas and the conduction solver are benchmarked against an independent enthalpy-method solver, the exact Neumann solution and an independent stiff-ODE integration. "
           "(iv) Sensitivity is analyzed globally (Sobol indices) and for correlated inputs, and the spread caused by the choice of model form is separated from the spread caused by parameter uncertainty. "
           "(v) The design variables are searched under constraints and the Pareto set is reported. (vi) The steam pressure is checked against flange ratings and a revised operating envelope is derived. Deployment limits (pipe length, size, temperature), "
           "the surge on blockage release and the steam budget complete the study. With every added mechanism switched off the extended model reproduces the first suite draw for draw (Section 5). "
@@ -24,17 +24,17 @@ add(("p", "The first suite of the study (thermal shield, melt kinetics, surge, m
 # ============================================================================================ 2 Concept and envelope
 add(("h1", "2. Concept and operating envelope"))
 add(("p", "The tool (Fig. @F:arch@) is a crawler of about 120 kg with cleated tracks and an elastomeric sealing skirt. Steam condenses on the deposit face ahead of the skirt, delivers latent heat and melts the deposit in place, and the skirt sweeps the "
-          "liquefied residue forward. The battery pack, motors and electronics sit in a sealed vessel inside a concentric stack of aluminium shell, silica aerogel [@Koebel2012] and titanium hull; an evacuated (vacuum-jacketed) variant is also evaluated. "
-          "Brushless motors drive the tracks and act as regenerative brakes against a speed set-point of 0.10 m/s, and a seal-differential bypass valve is added to relieve the pressure when a blockage releases."))
-add(("fig", "Fig1_cross_section.png", "Fig. @F:arch@. Cross-section of the crawler hull (not to scale): pack, aluminium shell, silica aerogel, titanium hull and the steam film.", 2.6))
-add(("p", "Table @T:envelope@ lists the operating envelope that the brief states [@YPF2026] next to what the modelled tool assumes. The tool modelled here is at concept stage (technology readiness level 2 to 3), below the 4 to 6 that the brief "
+          "liquefied residue forward. The battery pack, motors and electronics sit in a sealed vessel inside a concentric stack of aluminum shell, silica aerogel [@Koebel2012] and titanium hull; an evacuated (vacuum-jacketed) variant is also evaluated. "
+          "Brushless motors drive the tracks and act as regenerative brakes against a speed setpoint of 0.10 m/s, and a seal-differential bypass valve is added to relieve the pressure when a blockage releases."))
+add(("fig", "Fig1_cross_section.png", "Fig. @F:arch@. Cross-section of the crawler hull (not to scale): pack, aluminum shell, silica aerogel, titanium hull and the steam film.", 2.6))
+add(("p", "Table @T:envelope@ lists the operating envelope that the brief states [@YPF2026] next to what the modeled tool assumes. The tool modeled here is at concept stage (technology readiness level 2 to 3), below the 4 to 6 that the brief "
           "requires, and this paper does not claim otherwise."))
-add(("table", "Table @T:envelope@. Operating envelope in the published brief and in the model.", ["Item", "Brief [@YPF2026]", "Modelled tool"],
+add(("table", "Table @T:envelope@. Operating envelope in the published brief and in the model.", ["Item", "Brief [@YPF2026]", "Modeled tool"],
      [["Pipe diameter", "4 to 16 in", "12 in (0.30 m bore) baseline; 4 to 16 in studied in Section 6.7"],
       ["Pipe length", "about 0.3 m to 1 km", "one 45 min deployment; 0.3 m to 1 km studied in Section 6.6"],
       ["Material", "carbon steel", "carbon steel, standard wall"],
-      ["Deposits", "paraffin, sediment, scale, sludge, residue", "meltable paraffin only (melt point 58 ± 8 °C); solids not modelled"],
-      ["Access", "connection aligned with the flow; no fixed launcher or receiver", "not modelled; tool recovery and steam path are open design items"],
+      ["Deposits", "paraffin, sediment, scale, sludge, residue", "meltable paraffin only (melt point 58 ± 8 °C); solids not modeled"],
+      ["Access", "connection aligned with the flow; no fixed launcher or receiver", "not modeled; tool recovery and steam path are open design items"],
       ["Stages", "preparation, isolation, cleaning, residue collection, verification, return to service", "active cleaning and assumed logistics durations (Section 6.6)"],
       ["Readiness", "technology readiness level 4 to 6", "level 2 to 3 (simulation only)"]], [1.0, 2.0, 2.6]))
 add(("p", "Steam delivery. Fig. @F:path@ shows the three ways in which steam can reach the deposit face. The model assumes arrangement (a): steam is fed through a line that passes through the tool and discharges ahead of the sealing skirt into a steam zone of length "
@@ -49,7 +49,7 @@ add(("p", "The saturation temperature must be compatible with the pressure ratin
 # ============================================================================================ 3 Model
 add(("h1", "3. Mathematical model"))
 add(("h2", "3.1 Transient conduction in the composite wall"))
-add(("p", "The radial temperature $T(r,t)$ in the composite wall (aluminium shell, silica aerogel, titanium hull) obeys one-dimensional cylindrical conduction,"))
+add(("p", "The radial temperature $T(r,t)$ in the composite wall (aluminum shell, silica aerogel, titanium hull) obeys one-dimensional cylindrical conduction,"))
 add(("eq", r"\rho\,c_{p}(T)\,\frac{\partial T}{\partial t}=\frac{1}{r}\frac{\partial}{\partial r}\left[r\,k(T)\,\frac{\partial T}{\partial r}\right]", 1))
 add(("p", "with density $\\rho$, specific heat $c_{p}$ and conductivity $k$. For atmospheric-pressure aerogel $k=k_{0}[1+\\alpha(T-25)]$ with $k_{0}=0.018$ W/m·K and a slope of $8\\times10^{-5}$ W/m·K$^{2}$; for the evacuated jacket "
           "$k=0.0040+2.5\\times10^{-5}(T-25)$ W/m·K. Both are multiplied by a lognormal factor for compaction, moisture and lot variation. The outer boundary exchanges heat with saturated steam through a film coefficient capped at 12 kW/m²·K, the inner boundary "
@@ -59,8 +59,8 @@ add(("p", "with density $\\rho$, specific heat $c_{p}$ and conductivity $k$. For
 add(("h2", "3.2 Film condensation: three representations"))
 add(("p", "The first suite used the Nusselt film correlation [@Nusselt1916;@Incropera2007], derived for the outside of a horizontal tube, with a conduit diameter $D$,"))
 add(("eq", r"h=0.728\left[\frac{g\,\rho_{l}(\rho_{l}-\rho_{v})\,k_{l}^{3}\,h'_{fg}}{\mu_{l}\,D\,(T_{sat}-T_{w})}\right]^{1/4},\qquad h'_{fg}=h_{fg}+0.68\,c_{p,l}(T_{sat}-T_{w})", 2))
-add(("p", "with saturated-water properties near 1.55 MPa, a lognormal multiplier ($\\sigma=0.15$) and a non-condensable-gas factor $U(0.5,1)$. Inside a horizontal tube at low vapor velocity the condensate drains to the invert and the film is stratified; "
-          "the correlation of Chato [@Chato1962;@Dobson1998] has the same form with the coefficient 0.555 and $h'_{fg}=h_{fg}+\\tfrac{3}{8}c_{p,l}(T_{sat}-T_{w})$. A third, conservative representation for the range fixes the non-condensable factor at its lower bound 0.5. "
+add(("p", "with saturated-water properties near 1.55 MPa, a lognormal multiplier ($\\sigma=0.15$) and a noncondensable-gas factor $U(0.5,1)$. Inside a horizontal tube at low vapor velocity the condensate drains to the invert and the film is stratified; "
+          "the correlation of Chato [@Chato1962;@Dobson1998] has the same form with the coefficient 0.555 and $h'_{fg}=h_{fg}+\\tfrac{3}{8}c_{p,l}(T_{sat}-T_{w})$. A third, conservative representation for the range fixes the noncondensable factor at its lower bound 0.5. "
           "All three scale as $D^{-1/4}$. They are compared in Sections 5 and 6.3. An impingement model is not applied, because the steam path (a forward lance or annulus) is not defined; the steam-side coefficient on the hull is capped at 12 kW/m²·K in every case."))
 add(("h2", "3.3 Deposit melting and the retained-film resistance"))
 add(("p", "A deposit of thickness $\\delta$ and melt point $T_{m}$ needs the energy per unit area $e=\\rho_{d}\\delta[L_{f}+c_{d}(T_{m}-T_{0})]$. The first suite assumed that molten deposit leaves the surface at once (ablation), so that the heat flux is "
@@ -81,7 +81,7 @@ add(("p", "with the molten-paraffin density $\\rho_{l}=770$ kg/m$^{3}$ and visco
           "the shear of the steam on the film, and the temperature dependence of the viscosity. Its two limits are exact: for instant drainage it reproduces the ablation time, and for no drainage it approaches Eq. (4) (Section 5). "
           "Wall orientation (through $\\sin\\theta$), an interfacial steam shear $\\tau$ (adding a film flux $\\tau s^{2}/2\\mu_l$ to the gravity term) and the molten pool are examined in Section 6.4."))
 add(("h2", "3.5 Blockage release with an orifice bypass"))
-add(("p", "From break-through the tool of mass $m$ obeys"))
+add(("p", "From breakthrough the tool of mass $m$ obeys"))
 add(("eq", r"m\,\frac{dv}{dt}=A\,\Delta P\,(1-\beta)-F_{f}-c_{d}v^{2}-F_{c}", 6))
 add(("p", "with pipe area $A$, seal friction $F_{f}$, downstream drag $c_{d}$ and controller force $F_{c}$ (PI on speed, limited to the braking and traction authority). The first suite represented the bypass relief by a factor $\\beta\\to\\beta_{max}[1-0.5\\ \\mathrm{bar}/\\Delta P]$ "
           "(0.85 to 0.97) with a 5 to 30 ms lag, that is, as a force reduction without a flow. Here the upstream gas pocket (initial volume $V_{0}$, pressure $P_{0}=P_{d}+\\Delta P_{b}$) expands adiabatically as the tool advances a distance $x$ and "
@@ -94,7 +94,7 @@ add(("h2", "3.6 Pipe length, logistics and steam budget"))
 add(("p", "For a line of length $L$ and a deployment range $R_{dep}=v\\,t_{run}$, the number of deployments is the smallest integer not below $L/R_{dep}$, the active cleaning time is $L/v$, and the total intervention time adds preparation and isolation, "
           "turnaround between deployments, verification and return to service, whose durations are assumed (Table @T:inputs@). If steam reaches the tool through the pipe, it must also heat the steel wall of the whole line behind it,"))
 add(("eq", r"\dot{m}'_{s}=\frac{\rho_{s}A_{s}c_{s}\,(T_{sat}-T_{p})}{h_{fg}}+\dot{m}'_{melt}", 8))
-add(("p", "per metre of line, with the steel cross-section $A_{s}$ of standard-wall pipe ($\\rho_{s}=7{,}850$ kg/m$^{3}$, $c_{s}=490$ J/kg·K), the pipe temperature $T_{p}$ and the melting steam $\\dot{m}'_{melt}$ of Section 3.3. "
+add(("p", "per meter of line, with the steel cross-section $A_{s}$ of standard-wall pipe ($\\rho_{s}=7{,}850$ kg/m$^{3}$, $c_{s}=490$ J/kg·K), the pipe temperature $T_{p}$ and the melting steam $\\dot{m}'_{melt}$ of Section 3.3. "
           "The radial clearance (tracks, cleats, skirt) is that of the first design in a 12 in pipe, 44 mm; the hull is scaled for other sizes by reducing the pack radius, and then the aerogel, down to a 25 mm pack. "
           "The saturation pressure is computed from the IAPWS-IF97 saturation line [@Wagner1998]. The maintenance lattice of the first suite (a periodic $48\\times24$ lattice of wall cells fouled at a rate $r_{f}(1+\\gamma n_{f}/4)$ and cleared "
           "with probability $p$ per pass, checked against its exact solution for $\\gamma=0$ [@MyUncle]) is retained and reported in the Supplementary Information; it is not calibrated to any deposit."))
@@ -102,7 +102,7 @@ add(("h2", "3.7 Global sensitivity and constrained design"))
 add(("p", "For a scalar output $Y=f(\\mathbf{X})$ of independent inputs, the first-order and total Sobol indices are $S_{i}=\\mathrm{Var}[E(Y|X_{i})]/\\mathrm{Var}(Y)$ and $S_{Ti}=E[\\mathrm{Var}(Y|\\mathbf{X}_{\\sim i})]/\\mathrm{Var}(Y)$ [@Sobol2001;@Saltelli2008]. They are estimated with the "
           "Jansen estimators [@Jansen1999;@Saltelli2010] on scrambled Sobol sequences, with bootstrap intervals. The design search is the constrained problem"))
 add(("eq", r"\max_{\mathbf{x}}\ \mathrm{median}(R_{dep})\quad\mathrm{subject\ to}\quad P(T_{pack}\le55\,^{\circ}\mathrm{C}\ \mathrm{through}\ t_{run})\ge0.95,\ \ D_{hull}\le D_{fit},\ \ v_{set}\le0.20\ \mathrm{m/s},\ \ t_{run}\le90\ \mathrm{min}", 9))
-add(("p", "over the aerogel thickness (10 to 60 mm), the jacket (atmospheric or evacuated), the mission length and the speed set-point, for each melt-removal assumption. The Pareto set is taken over the median range (maximize), the melting steam per metre (minimize), the hull diameter "
+add(("p", "over the aerogel thickness (10 to 60 mm), the jacket (atmospheric or evacuated), the mission length and the speed setpoint, for each melt-removal assumption. The Pareto set is taken over the median range (maximize), the melting steam per meter (minimize), the hull diameter "
           "(minimize) and the thermal probability (maximize). A surge-speed constraint $v_{peak}\\le v_{safe}$ is not imposed on this search, because the surge depends on the blockage and the bypass, not on these variables (Section 6.10), and a safe speed has not been justified for any line."))
 
 # ============================================================================================ 4 Methodology
@@ -114,13 +114,13 @@ add(("p", "Input uncertainty is propagated by Monte Carlo sampling [@Metropolis1
 add(("table", "Table @T:inputs@. Principal sampled or assumed inputs.", ["Input", "Distribution or value"],
      [["Aerogel thickness; k multiplier", "40 mm × (1 + N(0, 0.03)) (swept 5–60 mm); lognormal σ = 0.15 (× lognormal σ = 0.30 and 5% vacuum loss when evacuated)"],
       ["Pack mass; heat generation; initial temperature", "N(16, 1.2) kg; lognormal, median 70 W, σ = 0.35; N(25, 4) °C (shifted 0–55 °C in Section 6.7)"],
-      ["Thermal-bridge fraction; condensation multiplier; non-condensable factor", "U(0.05, 0.30); lognormal σ = 0.15; U(0.5, 1.0)"],
+      ["Thermal-bridge fraction; condensation multiplier; noncondensable factor", "U(0.05, 0.30); lognormal σ = 0.15; U(0.5, 1.0)"],
       ["Steam saturation temperature", "N(198, 3) °C truncated to 185–204 °C (revised envelope: Section 6.8)"],
       ["Deposit thickness; melt point; density; latent heat", "lognormal, median 6 mm, σ = 0.5 (1–40 mm); N(58, 8) °C; N(850, 40) kg/m³; N(200, 30) kJ/kg"],
       ["Pipe temperature; heat-coupling fraction η; contact length", "N(25, 5) °C; U(0.15, 0.50); U(0.3, 0.8) m"],
       ["Retained melt film s; liquid conductivity", "swept 0–5 mm, or lognormal (median 0.2 mm, σ = 1.0) in the Sobol study; dynamic in Section 6.4; 0.15 W/m·K"],
       ["Molten-paraffin viscosity; density; drain path", "lognormal, median 4 mPa·s, σ = 0.3; 770 kg/m³; πD/4 (sensitivity ×0.25 and ×4)"],
-      ["Break-through ΔP; gas-pocket volume; downstream pressure", "lognormal, median 3 bar, σ = 0.6 (0.5–25 bar); lognormal, median 1 m³, σ = 0.7 (0.2–10 m³); U(5, 30) bar"],
+      ["Breakthrough ΔP; gas-pocket volume; downstream pressure", "lognormal, median 3 bar, σ = 0.6 (0.5–25 bar); lognormal, median 1 m³, σ = 0.7 (0.2–10 m³); U(5, 30) bar"],
       ["Seal friction; downstream drag; masses", "lognormal, median 400 N; lognormal, median 2,000 N s²/m²; N(80, 8) kg pig, N(120, 10) kg crawler"],
       ["Braking limit; traction limit; relief lag", "N(2.5, 0.4) kN; N(1.5, 0.2) kN; U(5, 30) ms"],
       ["Bypass area; discharge coefficient; crack differential", "swept 0–320 cm² (pipe 707 cm²); 0.7; 0.5 bar"],

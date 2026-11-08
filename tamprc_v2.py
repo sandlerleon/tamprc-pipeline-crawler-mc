@@ -282,7 +282,7 @@ def study_diameter(N):
         A = math.pi / 4 * g["ID"] ** 2
         row["force_3bar_kN"] = A * 3e5 / 1e3
         row["brake_ratio_3bar"] = A * 3e5 / 2500.0
-        # condensation coefficient scale and steam per metre scale relative to 12 in
+        # condensation coefficient scale and steam per meter scale relative to 12 in
         row["h_scale"] = float((g["ID"] / pipe_id(12)) ** -0.25)
         row["steam_scale"] = float(g["ID"] / pipe_id(12))
         rows.append(row)
@@ -354,7 +354,7 @@ def study_bypass(Nd):
 
 
 def study_steam(base, N):
-    """Steam per metre: deposit melting (original, by size) plus heating the pipe wall when steam reaches the tool through the line."""
+    """Steam per meter: deposit melting (original, by size) plus heating the pipe wall when steam reaches the tool through the line."""
     p, r = base["atm"]; t_run = np.minimum(r["t_crit"], 2700.0)
     rows = []
     for nps in sorted(NPS):
@@ -464,7 +464,7 @@ def fig_steam(st):
     n_ = [r["nps"] for r in st["rows"]]
     ax.bar(n_, [r["clean_kg_per_m"] for r in st["rows"]], color=C1, label="melting the deposit")
     ax.bar(n_, [r["wall_kg_per_m_25C"] for r in st["rows"]], bottom=[r["clean_kg_per_m"] for r in st["rows"]], color=C4, label="heating the pipe wall (25 → 198 °C)")
-    ax.set_xlabel("Nominal pipe size [in]"); ax.set_ylabel("Steam per metre of line [kg/m]"); ax.legend(frameon=False, fontsize=7)
+    ax.set_xlabel("Nominal pipe size [in]"); ax.set_ylabel("Steam per meter of line [kg/m]"); ax.legend(frameon=False, fontsize=7)
     save(fig, "Fig11_steam_budget.png")
 
 

@@ -23,7 +23,7 @@ for h in HIGH:
     add(("bullet", h))
 add(("h1", "Abstract"))
 add(("p0", fmt("Steam-assisted pipeline cleaning couples condensation heat transfer, melting of a deposit and a thermally protected tool, and the coupling, not any single component, sets its limits. We study a motorized steam-assisted crawler with a probabilistic "
-               "model: transient conduction through an aluminium–aerogel–titanium wall into a lumped battery pack, film condensation, a melt model with a retained liquid film whose resistance is the dimensionless group $\\Pi_f=hs/k_l$, a dynamic film balancing melt "
+               "model: transient conduction through an aluminum–aerogel–titanium wall into a lumped battery pack, film condensation, a melt model with a retained liquid film whose resistance is the dimensionless group $\\Pi_f=hs/k_l$, a dynamic film balancing melt "
                "production and gravity drainage, an orifice model of the bypass relief, and a steam budget. The conduction and melt formulas are benchmarked against an independent solver and the Neumann solution; no experiment was available for the coupled model. "
                "Under assumed input distributions, with 40 mm of aerogel the pack stays at or below 55 °C for 45 min in <<p>> of draws at 25 °C but <<p45>> at 45 °C. The median range per deployment is <<r0>> m if molten deposit leaves at once, <<rd>> m with the dynamic "
                "film (<<s>> mm) and <<rn>> m with none removed; Sobol indices attribute <<sf>> of the range variance to the film. The condensation correlation changes the instant-removal range by <<ch>>%, a Class 150 steam limit of <<tm>> °C by <<rv>>%. "

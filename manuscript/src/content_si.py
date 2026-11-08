@@ -27,7 +27,7 @@ rows = [[n(a["dx_um"], 0), n(a["t_ablation_numeric"], 3)] for a in BSF["ablation
 adds(("table", "Table S3. Ablation melt time of the enthalpy solver against cell size (h = 3 kW/m²·K, 6 mm).", ["Cell size (µm)", "Melt time (s)"], rows, [1.0, 1.0]))
 
 adds(("h1", "S3. Global sensitivity: Sobol indices with 95% bootstrap intervals"))
-for key, title in (("pack_temperature_45min", "pack temperature at 45 min"), ("range_with_film", "log10 range, retained film lognormal"), ("range_instant_removal", "log10 range, instant removal"), ("steam_with_film", "log10 melting steam per metre, retained film lognormal")):
+for key, title in (("pack_temperature_45min", "pack temperature at 45 min"), ("range_with_film", "log10 range, retained film lognormal"), ("range_instant_removal", "log10 range, instant removal"), ("steam_with_film", "log10 melting steam per meter, retained film lognormal")):
     d = SOB[key]; rows = []
     for i, nm_ in enumerate(d["names"]):
         rows.append([nm_, "%s (%s to %s)" % (n(d["S1"][i], 2), n(d["S1_ci"][0][i], 2), n(d["S1_ci"][1][i], 2)), "%s (%s to %s)" % (n(d["ST"][i], 2), n(d["ST_ci"][0][i], 2), n(d["ST_ci"][1][i], 2))])
@@ -44,7 +44,7 @@ adds(("table", "Table S6. Dynamic film: sensitivity of the median range and of t
 for mlab in ("instant removal", "dynamic film"):
     pts = sorted([d for d in DES["designs"] if d["melt"] == mlab and d.get("pareto")], key=lambda d: -d["range_median_m"])[:20]
     rows = [["evacuated" if d["vac"] else "atmospheric", n(d["t_a_mm"]), n(d["mission_min"]), n(d["v_set"], 2), n(d["hull_od_mm"]), pc(d["P_safe"], 1), n(d["range_median_m"], 1), n(d["steam_kg_per_m"], 2), n(d["energy_Wh"])] for d in pts]
-    adds(("table", "Table S7. Pareto-optimal feasible designs for %s (up to 20, by range)." % mlab, ["Jacket", "Aerogel (mm)", "Mission (min)", "Set-point (m/s)", "Hull OD (mm)", "P(≤ 55 °C)", "Range (m)", "Steam (kg/m)", "Energy (Wh)"], rows, [0.9, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7], 15))
+    adds(("table", "Table S7. Pareto-optimal feasible designs for %s (up to 20, by range)." % mlab, ["Jacket", "Aerogel (mm)", "Mission (min)", "Setpoint (m/s)", "Hull OD (mm)", "P(≤ 55 °C)", "Range (m)", "Steam (kg/m)", "Energy (Wh)"], rows, [0.9, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7], 15))
 rows = [[str(k)] + [pc(v, 0) for v in row] for k, row in zip(ENVL["nps"], ENVL["P_safe"])]
 adds(("table", "Table S8. Feasible envelope: P(pack ≤ 55 °C, 45 min) by nominal pipe size (rows) and pipe temperature (columns, °C), 400 draws per cell.", ["NPS (in)"] + [n(t) for t in ENVL["temps"]], rows, [0.7] + [0.6] * len(ENVL["temps"])))
 
@@ -69,7 +69,7 @@ for k in sorted(DIA):
     rows.append([str(k), n(d["ID"] * 1000, 1), n(d["r_hull"] * 2000, 0) if d["r_hull"] > 0.02 else "–", n(d["r_pack"] * 1000, 0), n(d["t_a"] * 1000, 0) if d["feasible"] else "does not fit",
                  "%s (%s)" % (pc(d["P_safe_atm"], 1), ci(*d["P_safe_atm_ci"], 1)) if d["P_safe_atm"] is not None else "–", "%s (%s)" % (pc(d["P_safe_vac"], 1), ci(*d["P_safe_vac_ci"], 1)) if d["P_safe_vac"] is not None else "–",
                  n(d["h_scale"], 2), n(d["steam_scale"], 2)])
-adds(("table", "Table S10. Fit and thermal margin by nominal pipe size (800 draws; Wilson interval). h scale: condensation coefficient relative to 12 in; steam scale: melting steam per metre relative to 12 in.",
+adds(("table", "Table S10. Fit and thermal margin by nominal pipe size (800 draws; Wilson interval). h scale: condensation coefficient relative to 12 in; steam scale: melting steam per meter relative to 12 in.",
       ["NPS (in)", "Bore (mm)", "Hull OD (mm)", "Pack radius (mm)", "Aerogel (mm)", "P atm.", "P evac.", "h scale", "Steam scale"], rows, [0.6, 0.7, 0.7, 0.8, 0.8, 1.7, 1.7, 0.6, 0.7], 15))
 rows = [[n(e["T_amb"]), "%s (%s)" % (pc(e["P_safe_atm"], 1), ci(*e["P_safe_atm_ci"], 1)), "%s (%s)" % (pc(e["P_safe_vac"], 1), ci(*e["P_safe_vac_ci"], 1)), n(e["Tp45_median_atm"], 1), n(e["t_melt_median_s"], 1), n(e["range_median_m"], 0)] for e in R["env"]["rows"]]
 adds(("table", "Table S11. Pipe / fluid temperature (12 in design, 40 mm aerogel; 800 draws): probability, median pack temperature at 45 min (atmospheric), median melt time and range.",
@@ -81,7 +81,7 @@ for Vg, lst in BY["by_volume"].items():
     rows.append([n(float(Vg), 1)] + [pc(x["P_gt_1"], 0) for x in lst])
 adds(("table", "Table S12. P(peak speed > 1 m/s) against bypass area (cm²; columns) for four gas-pocket volumes (rows, m³); other inputs sampled.", ["V_g (m³)"] + [n(a) for a in BY["areas_cm2"]], rows, [0.8] + [0.6] * len(BY["areas_cm2"]), 15))
 rows = [[n(float(Vg_), 1)] + [n(vt_[a], 0) for a in ("20.0", "80.0", "320.0")] for Vg_, vt_ in BY["vent_time_median_ms"].items()]
-adds(("table", "Table S13. Median time for a fully open bypass to halve the break-through differential (ms), tool held at rest, against pocket volume and bypass area.", ["V_g (m³)", "20 cm²", "80 cm²", "320 cm²"], rows, [0.8, 0.8, 0.8, 0.8]))
+adds(("table", "Table S13. Median time for a fully open bypass to halve the breakthrough differential (ms), tool held at rest, against pocket volume and bypass area.", ["V_g (m³)", "20 cm²", "80 cm²", "320 cm²"], rows, [0.8, 0.8, 0.8, 0.8]))
 rows = [[n(h["Qs_m3_s"], 2), n(h["area_cm2"], 1)] for h in BY["hold_area_cm2"]]
 adds(("table", "Table S14. Bypass flow area that holds a 0.5 bar differential at 18 bar upstream (assumed methane-like gas, C_d = 0.7) for a supply flow Q_s.", ["Q_s (m³/s at upstream conditions)", "Bypass area (cm²)"], rows, [1.6, 1.2]))
 
