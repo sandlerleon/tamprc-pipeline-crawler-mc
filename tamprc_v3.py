@@ -242,7 +242,7 @@ def study_hmodels(N):
 
 
 # ------------------------------------------------------------------------------------------------ dynamic retained film
-def dynfilm(Dm, Tsat, h_mult, D=V1.D_PIPE, mu_factor=1.0, ell_factor=1.0, s_res=0.0, k_l=T.K_LIQ, dt=0.02, t_cap=4000.0, rng=None, trace_idx=None):
+def dynfilm(Dm, Tsat, h_mult, D=V1.D_PIPE, mu_factor=1.0, ell_factor=1.0, s_res=0.0, k_l=T.K_LIQ, dt=0.02, t_cap=4000.0, rng=None, trace_idx=None, tau=0.0, sin_theta=SIN_AVG):
     """Melt time with a dynamic retained film.  Dm: the deposit draws of T.deposit_v2 (s = 0).  State per sample: melted thickness x and liquid layer thickness s.
         q = eta (Tsat - T_m) / (1/h + s/k_l)                       heat flux through the condensate film and the liquid layer
         dx/dt = q / (rho_d (L_f + c_d (T_m - T_0)))                 melt front recession
@@ -256,7 +256,8 @@ def dynfilm(Dm, Tsat, h_mult, D=V1.D_PIPE, mu_factor=1.0, ell_factor=1.0, s_res=
     h = Dm["h"]
     # energy per unit area and rate constants (the original uses e = rho delta [L_f + c (T_m - T_0)])
     e_unit = Dm["t_melt"] * Dm["q_eff"] / Dm["delta"]       # J/m3 = rho_d [L_f + c_d (T_m - T_0)]
-    cdr = RHO_L * G * SIN_AVG / (3.0 * mu * ell)
+    cdr = RHO_L * G * sin_theta / (3.0 * mu * ell)
+    csh = tau / (2.0 * mu * ell)                       # steam-shear contribution: film flux per unit width tau s^2 / (2 mu)
     x = np.zeros(N); s = np.zeros(N); t_done = np.full(N, np.nan); t = 0.0
     trace = []
     active = np.ones(N, bool)
@@ -267,7 +268,7 @@ def dynfilm(Dm, Tsat, h_mult, D=V1.D_PIPE, mu_factor=1.0, ell_factor=1.0, s_res=
         prod = dx * 850.0 / RHO_L
         s_tmp = s + prod
         ex = np.maximum(s_tmp - s_res, 0.0)
-        drain = cdr * ex ** 3 * dt
+        drain = (cdr * ex ** 3 + csh * ex ** 2) * dt
         s = np.maximum(s_tmp - np.minimum(drain, ex), 0.0)
         x = x + dx * active
         t += dt
@@ -301,7 +302,9 @@ def study_dynfilm(base, N):
                            mu_median_mPas=float(np.median(d0["mu"]) * 1e3), drain_path_m=math.pi * V1.D_PIPE / 4)
     sens = {}
     for lab, kw in (("viscosity x0.25", dict(mu_factor=0.25)), ("viscosity x4", dict(mu_factor=4.0)), ("drain path x0.25", dict(ell_factor=0.25)), ("drain path x4", dict(ell_factor=4.0)),
-                    ("residual film 0.02 mm", dict(s_res=0.02e-3)), ("residual film 0.05 mm", dict(s_res=0.05e-3))):
+                    ("residual film 0.02 mm", dict(s_res=0.02e-3)), ("residual film 0.05 mm", dict(s_res=0.05e-3)),
+                    ("steam shear 0.1 Pa", dict(tau=0.1)), ("steam shear 1 Pa", dict(tau=1.0)), ("steam shear 10 Pa", dict(tau=10.0)),
+                    ("wall near the invert (sin 0.2)", dict(sin_theta=0.2)), ("wall at the spring line (sin 1.0)", dict(sin_theta=1.0))):
         d = dynfilm(Dm, p["Tsat"], p["h_mult"], **kw)
         vth_ = Dm["Lz"] / d["t_melt"]; rg_ = np.minimum(0.10, vth_) * t_run
         sens[lab] = dict(range_median_m=float(np.median(rg_)), s_end_median_mm=float(np.median(d["s_end"]) * 1e3), P_ge_100=float((rg_ >= 100).mean()))
@@ -312,6 +315,11 @@ def study_dynfilm(base, N):
     f = lambda s: eta_med * dT_med / (1 / h_med + s / T.K_LIQ) / e_med * 850.0 / RHO_L - RHO_L * G * SIN_AVG * s ** 3 / (3 * MU_L * ell)
     s_star = brentq(f, 1e-7, 5e-3)
     out["steady_film_median_params"] = dict(s_star_mm=s_star * 1e3, Pi_f=h_med * s_star / T.K_LIQ, flux_ratio=1.0 / (1.0 + h_med * s_star / T.K_LIQ))
+    # steam velocity that produces a given interfacial shear: tau = 0.5 rho_v f u^2, f = 0.01 (assumed)
+    out["shear_vs_velocity"] = [dict(tau_Pa=t_, u_steam_m_s=float(math.sqrt(2 * t_ / (V1.STEAM["rho_v"] * 0.01)))) for t_ in (0.1, 1.0, 10.0)]
+    out["gravity_stress_Pa_at_median_film"] = float(RHO_L * G * SIN_AVG * out["steady_film_median_params"]["s_star_mm"] * 1e-3)
+    mdot_med = float(np.median(Dm["q_raw"] * math.pi * V1.D_PIPE * Dm["Lz"] / (V1.STEAM["hfg"])))
+    out["steam_velocity_for_condensation_m_s"] = mdot_med / (V1.STEAM["rho_v"] * math.pi / 4 * V1.D_PIPE ** 2)
     out["trace_nominal"] = dict(t=[a[0] for a in d0["trace"]], x_mm=[a[1] * 1e3 for a in d0["trace"]], s_mm=[a[2] * 1e3 for a in d0["trace"]], delta_mm=float(Dm["delta"][i_nom] * 1e3))
     # dimensionless retained-film resistance: range >= 100 m needs v_th >= 100 m / t_run; with q/q0 = 1/(1+Pi_f)
     return out, (Dm, d0, t_run, p)
@@ -321,6 +329,25 @@ def pi_f_100m(Dm, t_run):
     """Pi_f = h s / k_l at which the median range falls to 100 m (series-resistance model, same draws)."""
     f = lambda pf: float(np.median(np.minimum(0.10, Dm["v_th"] / (1.0 + pf)) * t_run)) - 100.0
     return brentq(f, 0.0, 50.0)
+
+
+def study_coverage_dyn(base, bd, N):
+    """Deployments and intervention time for the dynamic-film melt model (same stage-duration draws as T.study_coverage)."""
+    Dm, d0, _, p0 = bd
+    rngT = np.random.default_rng(SEED + 202)
+    stage = dict(prep=rngT.uniform(3, 8, N), turn=rngT.uniform(1, 3, N), verify=rngT.uniform(1, 3, N), rts=rngT.uniform(2, 6, N))
+    v = np.minimum(0.10, Dm["Lz"] / d0["t_melt"])
+    out = {}
+    for mission, (key, tmax) in {"45 min atmospheric": ("atm", 2700.0), "90 min evacuated": ("vac", 5400.0)}.items():
+        t_run = np.minimum(base[key][1]["t_crit"], tmax)
+        rg = v * t_run
+        for L in (0.3, 10.0, 100.0, 300.0, 600.0, 1000.0):
+            nd_ = np.ceil(L / rg); active = L / v / 3600.0
+            total = stage["prep"] + active + (nd_ - 1) * stage["turn"] + stage["verify"] + stage["rts"]
+            out["%s|dynamic film|%g" % (mission, L)] = dict(P_single=float((rg >= L).mean()), n_dep_median=float(np.median(nd_)), n_dep_p05=float(np.percentile(nd_, 5)), n_dep_p95=float(np.percentile(nd_, 95)),
+                                                         active_h_median=float(np.median(active)), total_h_median=float(np.median(total)), total_h_p05=float(np.percentile(total, 5)), total_h_p95=float(np.percentile(total, 95)),
+                                                         active_fraction_median=float(np.median(active / total)), range_median_m=float(np.median(rg)), range_max_m=float(rg.max()), naive_n_dep=float(L / np.median(rg)))
+    return out
 
 
 # ------------------------------------------------------------------------------------------------ Sobol indices
@@ -376,6 +403,9 @@ def study_sobol(m_thermal=9, m_melt=13):
         return V1.run_thermal(p, False, t_end=2700.0, dt=15.0)["Tp45"]
     r = sobol_indices(f_t, ppf_t, m=m_thermal)
     out["pack_temperature_45min"] = dict(names=names_t, **r)
+    rh = sobol_indices(f_t, ppf_t, m=m_thermal - 1, nboot=20)
+    out["convergence"] = {"pack_temperature_45min": dict(m_full=m_thermal, m_half=m_thermal - 1, max_abs_diff_ST=float(np.max(np.abs(np.array(r["ST"]) - np.array(rh["ST"])))), max_abs_diff_S1=float(np.max(np.abs(np.array(r["S1"]) - np.array(rh["S1"])))),
+                                                       max_ci_halfwidth_ST=float(np.max(0.5 * (np.array(r["ST_ci"][1]) - np.array(r["ST_ci"][0])))))}
     # melt: range and steam per metre; the retained film is an assumed lognormal input (median 0.2 mm, sigma 1.0) in the first case and zero in the second
     names_m = ["deposit thickness", "melt point", "deposit density", "latent heat", "pipe temperature", "heat-coupling fraction", "non-condensable factor", "contact length", "steam temperature", "condensation multiplier", "retained film"]
     ppf_m = [lambda u: np.clip(np.exp(np.log(6e-3) + 0.5 * nrm(u)), 1e-3, 40e-3), lambda u: np.clip(58 + 8 * nrm(u), 40, 90), lambda u: 850 + 40 * nrm(u), lambda u: np.clip(2e5 + 3e4 * nrm(u), 1e5, 3e5),
@@ -393,6 +423,9 @@ def study_sobol(m_thermal=9, m_melt=13):
         ppf = ppf_m if with_film else ppf_m[:10]
         nm = names_m if with_film else names_m[:10]
         out["range_" + tag] = dict(names=nm, **sobol_indices(lambda X: f_r(np.column_stack([X, np.zeros(len(X))]) if not with_film else X), ppf, m=m_melt))
+        rh = sobol_indices(lambda X: f_r(np.column_stack([X, np.zeros(len(X))]) if not with_film else X), ppf, m=m_melt - 1, nboot=20)
+        out["convergence"]["range_" + tag] = dict(m_full=m_melt, m_half=m_melt - 1, max_abs_diff_ST=float(np.max(np.abs(np.array(out["range_" + tag]["ST"]) - np.array(rh["ST"])))), max_abs_diff_S1=float(np.max(np.abs(np.array(out["range_" + tag]["S1"]) - np.array(rh["S1"])))),
+                                                  max_ci_halfwidth_ST=float(np.max(0.5 * (np.array(out["range_" + tag]["ST_ci"][1]) - np.array(out["range_" + tag]["ST_ci"][0])))))
         out["steam_" + tag] = dict(names=nm, **sobol_indices(lambda X: f_s(np.column_stack([X, np.zeros(len(X))]) if not with_film else X), ppf, m=m_melt))
     return out
 
@@ -516,13 +549,15 @@ def study_ptcompat(base, N):
         rng = np.random.default_rng(SEED + 1101)
         p = V1.sample_thermal(N, rng, 40.0, False)
         if Tc is not None:
-            z = (p["Tsat"] - 198.0) / 3.0
-            p["Tsat"] = np.clip(Tc + 2.0 * z, 150.0, Tc + 6.0)
+            # N(Tc, 2) truncated above at the pressure limit Tmax150 (inverse-CDF mapping of the same uniform draws): every sampled steam temperature respects the limit
+            u = stats.norm.cdf((p["Tsat"] - 198.0) / 3.0)
+            b = (Tmax150 - Tc) / 2.0
+            p["Tsat"] = Tc + 2.0 * stats.norm.ppf(u * stats.norm.cdf(b))
         r = V1.run_thermal(p, False, dt=15.0)
         ok = int((r["Tp45"] <= 55).sum()); lo, hi = T.wilson(ok, N)
         t_run = np.minimum(r["t_crit"], 2700.0)
         B = T.deposit_v2(N, np.random.default_rng(SEED + 101), p["Tsat"], p["h_mult"], t_run, s_ret=0.0)
-        res[lab] = dict(Tsat_median=float(np.median(p["Tsat"])), P_safe=ok / N, P_safe_ci=[lo, hi], range_median_m=float(np.median(B["range"])), v_th_median_cms=float(np.median(B["v_th"]) * 100),
+        res[lab] = dict(Tsat_max=float(p["Tsat"].max()), frac_above_class150_limit=float((p["Tsat"] > Tmax150 + 1e-9).mean()), Tsat_median=float(np.median(p["Tsat"])), P_safe=ok / N, P_safe_ci=[lo, hi], range_median_m=float(np.median(B["range"])), v_th_median_cms=float(np.median(B["v_th"]) * 100),
                         t_melt_median_s=float(np.median(B["t_melt"])), steam_kg_per_m=float(np.median(B["steam_kg_per_m"])))
     out["revised_envelope"] = res
     return out
@@ -636,6 +671,21 @@ def fig_envelope(env, pt):
     save(fig, "Fig18_pressure_temperature.png")
 
 
+def study_ice():
+    """First-order thermal energy per metre of 12 in line for an ice-slurry route under stated assumptions (slurry volume as a fraction f_s of the line volume, ice fraction phi, latent heat 334 kJ/kg,
+    ice density 917 kg/m3, carrier water cooled from 15 C, refrigeration coefficient of performance 2.5).  Illustrative bounds, not a model of ice pigging."""
+    A = math.pi / 4 * T.pipe_id(12) ** 2
+    rows = []
+    for fs in (0.1, 0.3, 1.0):
+        for phi in (0.1, 0.3):
+            ice = fs * A * phi * 917.0
+            water = fs * A * (1 - phi) * 1000.0
+            q_th = ice * 334e3 + water * 4186.0 * 15.0
+            rows.append(dict(f_s=fs, phi=phi, ice_kg_per_m=float(ice), thermal_MJ_per_m=float(q_th / 1e6), electric_MJ_per_m=float(q_th / 2.5 / 1e6)))
+    boiler = V1.STEAM["hfg"] + 4186.0 * (198.0 - 15.0)
+    return dict(rows=rows, pipe_volume_m3_per_m=float(A), steam_J_per_kg=float(boiler))
+
+
 # ------------------------------------------------------------------------------------------------ the suite
 def run_all(quick=False):
     os.makedirs(RES, exist_ok=True)
@@ -652,6 +702,7 @@ def run_all(quick=False):
     R["design"] = study_design(bd, N); print("design", round(time.time() - t0, 1), flush=True)
     R["envelope"] = study_envelope(Nsm // 2); print("envelope", round(time.time() - t0, 1), flush=True)
     R["ptcompat"] = study_ptcompat(base, N); R["uncapped"] = study_uncapped(base, N)
+    R["coverage_dyn"] = study_coverage_dyn(base, bd, N); R["ice"] = study_ice()
     if not quick:
         fig_dynfilm(dyn, flm); fig_bench(R["bench_stefan"], R["bench_conduction"], R["hmodels"]); fig_sobol(R["sobol"]); fig_pareto(R["design"]); fig_envelope(R["envelope"], R["ptcompat"])
     R["runtime_s"] = round(time.time() - t0, 1)

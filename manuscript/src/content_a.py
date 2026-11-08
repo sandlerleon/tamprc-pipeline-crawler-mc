@@ -37,8 +37,13 @@ add(("table", "Table @T:envelope@. Operating envelope in the published brief and
       ["Access", "connection aligned with the flow; no fixed launcher or receiver", "not modelled; tool recovery and steam path are open design items"],
       ["Stages", "preparation, isolation, cleaning, residue collection, verification, return to service", "active cleaning and assumed logistics durations (Section 6.6)"],
       ["Readiness", "technology readiness level 4 to 6", "level 2 to 3 (simulation only)"]], [1.0, 2.0, 2.6]))
-add(("p", "Two conditions of the concept decide the interpretation of the results. First, the steam must reach a tool that is sealed against the deposit it is melting; this needs a defined forward path (a lance or bypass annulus) or a steam line behind the tool, "
-          "and the latter heats the whole pipe wall (Section 6.11). Second, the saturation temperature must be compatible with the pressure rating of the line: the first design used steam at 198 °C, which is 1.49 MPa, and Section 6.8 shows that this exceeds the rating "
+add(("p", "Steam delivery. Fig. @F:path@ shows the three ways in which steam can reach the deposit face. The model assumes arrangement (a): steam is fed through a line that passes through the tool and discharges ahead of the sealing skirt into a steam zone of length "
+          "$L_z$ (0.3 to 0.8 m) between the skirt and the deposit face. The skirt closes the zone, so the steam condenses on the deposit face and on the pipe wall inside the zone, the melt drains along the wall and collects as a pool at the invert, and the hull is exposed to saturated steam "
+          "only in that zone. In arrangement (b) steam travels through the pipe behind the tool and reaches the zone through ports in the skirt, and it heats the whole pipe wall on the way (Section 6.11); in (c) a hose carried inside the pipe feeds the lance, which avoids "
+          "the wall heating at the price of tether drag over up to 1 km and a second line at the steam temperature. In all three, steam must enter the line through the connection by which the tool enters, which needs a pressure-sealed gland or hose and is not designed here. "
+          "The choice changes the steam budget and the hull exposure, not the melt model of Section 3, which depends only on the steam temperature and contact length at the deposit face."))
+add(("fig", "Fig2_steam_path.png", "Fig. @F:path@. Steam delivery to the deposit face: (a) forward lance through the tool (assumed by the model), (b) steam through the pipe behind the tool and ports in the skirt, (c) hose inside the pipe feeding a lance. Not to scale.", 5.6))
+add(("p", "The saturation temperature must be compatible with the pressure rating of the line: the first design used steam at 198 °C, which is 1.49 MPa, and Section 6.8 shows that this exceeds the rating "
           "of a Class 150 carbon-steel flange at that temperature and derives a revised envelope. Equipment protection for explosive atmospheres [@IEC60079] and the recovery of a stalled tool are discussed in Section 7.3."))
 
 # ============================================================================================ 3 Model
@@ -73,7 +78,8 @@ add(("p", "Instead of prescribing $s$, a surface element in the steam zone is ad
 add(("eq", r"\frac{dx}{dt}=\frac{q_{eff}(s)}{\rho_{d}[L_{f}+c_{d}(T_{m}-T_{0})]},\qquad \frac{ds}{dt}=\frac{\rho_{d}}{\rho_{l}}\frac{dx}{dt}-\frac{\rho_{l}\,g\sin\theta\,(s-s_{res})^{3}}{3\,\mu_{l}\,\ell}", 5))
 add(("p", "with the molten-paraffin density $\\rho_{l}=770$ kg/m$^{3}$ and viscosity $\\mu_{l}$ lognormal with median 4 mPa·s and $\\sigma=0.3$ (assumed), and a residual wetting film $s_{res}$ (zero in the baseline, 0.02 and 0.05 mm in the sensitivity study). "
           "The element is melted through when $x=\\delta$, which gives $t_{m}$ and $v_{th}=L_{z}/t_{m}$. The model is a quasi-steady conduction film with gravity drainage; it ignores the molten pool at the invert, which the skirt pushes ahead, "
-          "the shear of the steam on the film, and the temperature dependence of the viscosity. Its two limits are exact: for instant drainage it reproduces the ablation time, and for no drainage it approaches Eq. (4) (Section 5)."))
+          "the shear of the steam on the film, and the temperature dependence of the viscosity. Its two limits are exact: for instant drainage it reproduces the ablation time, and for no drainage it approaches Eq. (4) (Section 5). "
+          "Wall orientation (through $\\sin\\theta$), an interfacial steam shear $\\tau$ (adding a film flux $\\tau s^{2}/2\\mu_l$ to the gravity term) and the molten pool are examined in Section 6.4."))
 add(("h2", "3.5 Blockage release with an orifice bypass"))
 add(("p", "From break-through the tool of mass $m$ obeys"))
 add(("eq", r"m\,\frac{dv}{dt}=A\,\Delta P\,(1-\beta)-F_{f}-c_{d}v^{2}-F_{c}", 6))

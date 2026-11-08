@@ -134,4 +134,26 @@ check("Class 150 steam-temperature limit lies below the model's 198 C", pt["Tmax
 check("uncapped range: the set-point cap binds exactly in the draws with v_th >= 0.10 m/s", abs(EXT["uncapped"]["P_range_at_cap"] - (1 - EXT["uncapped"]["P_thermally_limited"])) < 1e-12)
 cr = EXT["corr"]["rows"]
 check("positive correlation of starting temperature and heat generation lowers the thermal probability", cr[1]["P_safe"] < cr[0]["P_safe"] < cr[2]["P_safe"] + 1e-9)
+
+# ---- (vi) second review: steam shear and orientation, dynamic-film coverage, truncated envelope, Sobol adequacy, ice-slurry arithmetic
+rv = EXT["ptcompat"]["revised_envelope"]
+check("revised steam-temperature distribution respects the Class 150 limit in every draw (maximum sampled value below the limit)", rv["revised, Class 150 limit"]["Tsat_max"] <= EXT["ptcompat"]["Tmax_class150_C"] and rv["revised, Class 150 limit"]["frac_above_class150_limit"] == 0.0,
+      "max %.1f C, limit %.0f C" % (rv["revised, Class 150 limit"]["Tsat_max"], EXT["ptcompat"]["Tmax_class150_C"]))
+check("the original steam-temperature distribution exceeds the Class 150 limit in most draws", rv["original 198 C"]["frac_above_class150_limit"] > 0.5)
+cd_ = EXT["coverage_dyn"]
+k1 = "45 min atmospheric|dynamic film|1000"
+check("dynamic film: the median deployment count for 1 km equals L / median range within 5 % and exceeds the instant-removal count", abs(cd_[k1]["n_dep_median"] / cd_[k1]["naive_n_dep"] - 1) < 0.05 and cd_[k1]["n_dep_median"] > RESULTS["coverage"]["rows"]["45 min atmospheric|ablation|1000"]["n_dep_median"] * 3)
+check("dynamic film: no 45 min deployment reaches 300 m", cd_["45 min atmospheric|dynamic film|300"]["P_single"] == 0.0)
+d_a = X.dynfilm(Dm, pp["Tsat"], pp["h_mult"], dt=0.02)
+d_b = X.dynfilm(Dm, pp["Tsat"], pp["h_mult"], dt=0.02, tau=0.0, sin_theta=X.SIN_AVG)
+check("zero steam shear and the default wall orientation reproduce the baseline dynamic film exactly", np.array_equal(d_a["t_melt"], d_b["t_melt"]))
+sens = EXT["dynfilm"]["sensitivity"]
+check("steam shear raises the range monotonically (0.1, 1, 10 Pa) and a steeper wall drains faster (sin 0.2 < baseline < sin 1.0)",
+      EXT["dynfilm"]["baseline"]["range_median_m"] <= sens["steam shear 0.1 Pa"]["range_median_m"] < sens["steam shear 1 Pa"]["range_median_m"] < sens["steam shear 10 Pa"]["range_median_m"]
+      and sens["wall near the invert (sin 0.2)"]["range_median_m"] < EXT["dynfilm"]["baseline"]["range_median_m"] < sens["wall at the spring line (sin 1.0)"]["range_median_m"])
+check("steam shear is negligible at the steam velocity that condensation alone induces (below 1 m/s)", EXT["dynfilm"]["steam_velocity_for_condensation_m_s"] < 1.0)
+cv_ = EXT["sobol"]["convergence"]
+check("Sobol indices of the melt model change by less than 0.01 (total) when the sample is halved; the pack by less than 0.05", cv_["range_with_film"]["max_abs_diff_ST"] < 0.01 and cv_["range_instant_removal"]["max_abs_diff_ST"] < 0.01 and cv_["pack_temperature_45min"]["max_abs_diff_ST"] < 0.05)
+ice = EXT["ice"]["rows"]
+check("ice-slurry bounding arithmetic: thermal energy per metre increases with slurry volume and ice fraction, electric = thermal / 2.5", all(abs(r["electric_MJ_per_m"] - r["thermal_MJ_per_m"] / 2.5) < 1e-12 for r in ice) and ice[0]["thermal_MJ_per_m"] < ice[-1]["thermal_MJ_per_m"])
 print("\n%d checks passed" % N_OK)

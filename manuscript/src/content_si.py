@@ -2,7 +2,7 @@
 """Supplementary information."""
 from common import *
 
-NTEST = 53
+NTEST = 62
 adds(("title", "Supplementary Information"))
 adds(("small", TITLE))
 adds(("author", "Leon Sandler"))
@@ -55,6 +55,10 @@ for m_ in ("45 min atmospheric", "90 min evacuated"):
         for L in R["coverage"]["lengths"]:
             d = COV["%s|%s|%g" % (m_, c_, L)]
             rows.append([m_, c_, n(L, 1 if L < 1 else 0), pc(d["P_single"], 0), n(d["n_dep_median"]), n(d["n_dep_p95"]), n(d["active_h_median"], 2), "%s (%s–%s)" % (n(d["total_h_median"], 1), n(d["total_h_p05"], 1), n(d["total_h_p95"], 1)), n(d["range_median_m"], 1)])
+for m_ in ("45 min atmospheric", "90 min evacuated"):
+    for L in R["coverage"]["lengths"]:
+        d = CVD["%s|dynamic film|%g" % (m_, L)]
+        rows.append([m_, "dynamic film", n(L, 1 if L < 1 else 0), pc(d["P_single"], 0), n(d["n_dep_median"]), n(d["n_dep_p95"]), n(d["active_h_median"], 2), "%s (%s–%s)" % (n(d["total_h_median"], 1), n(d["total_h_p05"], 1), n(d["total_h_p95"], 1)), n(d["range_median_m"], 1)])
 adds(("table", "Table S9. Deployments, active time and total intervention time by mission, melt-removal case and pipe length (median; total with 5th–95th percentile).",
       ["Mission", "Melt removal", "L (m)", "P(one)", "Dep. median", "Dep. p95", "Active (h)", "Total (h)", "Range (m)"], rows, [1.2, 1.1, 0.5, 0.6, 0.6, 0.6, 0.7, 1.4, 0.7], 15))
 

@@ -34,8 +34,8 @@ def ci(lo, hi, d=1):
 
 import re
 
-FIGNUM = {"arch": 1, "bench": 2, "fan": 3, "sweep": 4, "melt": 5, "film": 6, "dyn": 7, "sobol": 8, "cov": 9, "dia": 10, "env": 11, "pt": 12, "pareto": 13, "surge": 14, "bypass": 15, "steam": 16}
-TABNUM = {"envelope": 1, "inputs": 2, "bench": 3, "hmod": 4, "film": 5, "cov": 6, "dia": 7, "pt": 8, "design": 9, "surge": 10, "steam": 11, "reqs": 12}
+FIGNUM = {"arch": 1, "path": 2, "bench": 3, "fan": 4, "sweep": 5, "melt": 6, "film": 7, "dyn": 8, "sobol": 9, "cov": 10, "dia": 11, "env": 12, "pt": 13, "pareto": 14, "surge": 15, "bypass": 16, "steam": 17}
+TABNUM = {"envelope": 1, "inputs": 2, "bench": 3, "hmod": 4, "film": 5, "cov": 6, "dia": 7, "pt": 8, "design": 9, "surge": 10, "steam": 11, "reqs": 12, "ice": 13}
 _TOK = re.compile(r"@([FT]):(\w+)@")
 
 
@@ -67,7 +67,7 @@ A_ATM, A_VAC = V["A_atmospheric"], V["A_evacuated"]
 BB = V["B"]
 CP, CR, CL = V["C_passive"], V["C_regen"], V["C_relief"]
 F = R["film"]
-HM = X["hmodels"]["models"]; DY = X["dynfilm"]; BSF = X["bench_stefan"]; BCD = X["bench_conduction"]; SOB = X["sobol"]; CORR = X["corr"]["rows"]; DES = X["design"]; ENVL = X["envelope"]; PT = X["ptcompat"]; UNC = X["uncapped"]
+HM = X["hmodels"]["models"]; DY = X["dynfilm"]; BSF = X["bench_stefan"]; BCD = X["bench_conduction"]; SOB = X["sobol"]; CORR = X["corr"]["rows"]; DES = X["design"]; ENVL = X["envelope"]; PT = X["ptcompat"]; UNC = X["uncapped"]; CVD = X["coverage_dyn"]; ICE = X["ice"]
 FR = {round(r["s_mm"], 3): r for r in F["rows"]}
 ND = F["nodrain"]
 COV = R["coverage"]["rows"]

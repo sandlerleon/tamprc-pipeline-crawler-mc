@@ -20,6 +20,8 @@ LIB = {
     'MyUncle': 'L. Sandler, MyUncle: maintenance-lattice simulation framework (software repository), https://github.com/sandlerleon/MyUncle (accessed 7 November 2026).',
     'ASMEB165': 'ASME B16.5, Pipe Flanges and Flanged Fittings: NPS 1/2 through NPS 24 Metric/Inch Standard, American Society of Mechanical Engineers, New York (current edition).',
     'IEC60079': 'IEC 60079-0, Explosive atmospheres — Part 0: Equipment — General requirements, International Electrotechnical Commission, Geneva (current edition).',
+    'Yadav2020': 'A. Yadav, B. Donepudi, S. Siddani, Numerical and experimental investigation of melting characteristics of phase change material-RT58, Thermal Science and Engineering Progress 17 (2020) 100378. https://doi.org/10.1016/j.tsep.2019.100378',
+    'Sharma2009': 'A. Sharma, V.V. Tyagi, C.R. Chen, D. Buddhi, Review on thermal energy storage with phase change materials and applications, Renewable and Sustainable Energy Reviews 13 (2009) 318–345. https://doi.org/10.1016/j.rser.2007.10.005',
     'Chato1962': 'J.C. Chato, Laminar condensation inside horizontal and inclined tubes, ASHRAE Journal 4 (1962) 52–60.',
     'Dobson1998': 'M.K. Dobson, J.C. Chato, Condensation in smooth horizontal tubes, Journal of Heat Transfer 120 (1998) 193–213. https://doi.org/10.1115/1.2830043',
     'Alexiades2018': 'V. Alexiades, A.D. Solomon, Mathematical Modeling of Melting and Freezing Processes, CRC Press, Boca Raton (2018; first published by Hemisphere, 1993). https://doi.org/10.1201/9780203749449',
