@@ -9,10 +9,11 @@ FIG = os.path.join(ROOT, "figures")
 OUT = os.path.join(ROOT, "manuscript")
 R = json.load(open(os.path.join(ROOT, "results", "results.json"), encoding="utf-8"))
 V = json.load(open(os.path.join(ROOT, "results", "v1_results.json"), encoding="utf-8"))
+X = json.load(open(os.path.join(ROOT, "results", "results_ext.json"), encoding="utf-8"))
 DOIS = json.load(open(os.path.join(HERE, "dois.json"), encoding="utf-8"))
 GITHUB = "https://github.com/sandlerleon/tamprc-pipeline-crawler-mc"
 VERSION = "1.0.0"
-TITLE = "Thermal Shielding, Melt Kinetics and Surge Control of a Steam-Assisted Pipeline Cleaning Crawler: A Monte Carlo Study and Its Deployment Limits"
+TITLE = "Coupled Condensation–Melting Heat Transfer and Thermal Design Limits of a Steam-Assisted Pipeline Cleaning Crawler: A Probabilistic Modeling Study"
 
 
 def n(x, d=0):
@@ -31,16 +32,34 @@ def ci(lo, hi, d=1):
     return "%s–%s%%" % (n(100 * lo, d), n(100 * hi, d))
 
 
+import re
+
+FIGNUM = {"arch": 1, "bench": 2, "fan": 3, "sweep": 4, "melt": 5, "film": 6, "dyn": 7, "sobol": 8, "cov": 9, "dia": 10, "env": 11, "pt": 12, "pareto": 13, "surge": 14, "bypass": 15, "steam": 16}
+TABNUM = {"envelope": 1, "inputs": 2, "bench": 3, "hmod": 4, "film": 5, "cov": 6, "dia": 7, "pt": 8, "design": 9, "surge": 10, "steam": 11, "reqs": 12}
+_TOK = re.compile(r"@([FT]):(\w+)@")
+
+
+def _sub(x):
+    """replace the symbolic figure and table numbers (@F:key@, @T:key@) in a block"""
+    if isinstance(x, str):
+        return _TOK.sub(lambda m: str({"F": FIGNUM, "T": TABNUM}[m.group(1)][m.group(2)]), x)
+    if isinstance(x, tuple):
+        return tuple(_sub(i) for i in x)
+    if isinstance(x, list):
+        return [_sub(i) for i in x]
+    return x
+
+
 B = []      # manuscript blocks
 BS = []     # supplementary blocks
 
 
 def add(b):
-    B.append(b)
+    B.append(_sub(b))
 
 
 def adds(b):
-    BS.append(b)
+    BS.append(_sub(b))
 
 
 # ---- frequently used records
@@ -48,6 +67,7 @@ A_ATM, A_VAC = V["A_atmospheric"], V["A_evacuated"]
 BB = V["B"]
 CP, CR, CL = V["C_passive"], V["C_regen"], V["C_relief"]
 F = R["film"]
+HM = X["hmodels"]["models"]; DY = X["dynfilm"]; BSF = X["bench_stefan"]; BCD = X["bench_conduction"]; SOB = X["sobol"]; CORR = X["corr"]["rows"]; DES = X["design"]; ENVL = X["envelope"]; PT = X["ptcompat"]; UNC = X["uncapped"]
 FR = {round(r["s_mm"], 3): r for r in F["rows"]}
 ND = F["nodrain"]
 COV = R["coverage"]["rows"]

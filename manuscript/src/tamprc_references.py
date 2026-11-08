@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Numbered reference library. Journal, book and proceedings entries were checked against Crossref (title, authors, volume, pages, DOI) on 7 November 2026; standards are cited by designation and
+"""Numbered reference library. Journal, book and proceedings entries were checked against Crossref (title, authors, volume, pages, DOI) on 7 November 2026; Chato (1962) is not indexed by Crossref and was not checked; standards are cited by designation and
 were not checked against the publishers' catalogs; the challenge page was read on 7 November 2026.  Numbering follows the order of first citation in the text."""
 LIB = {
     'YPF2026': 'Wazoku (InnoCentive), Innovative Pipeline Cleaning Solutions (scouting challenge for YPF), https://www.innocentive.com/challenges/innovative-pipeline-cleaning-solutions/ (accessed 7 November 2026).',
@@ -20,4 +20,11 @@ LIB = {
     'MyUncle': 'L. Sandler, MyUncle: maintenance-lattice simulation framework (software repository), https://github.com/sandlerleon/MyUncle (accessed 7 November 2026).',
     'ASMEB165': 'ASME B16.5, Pipe Flanges and Flanged Fittings: NPS 1/2 through NPS 24 Metric/Inch Standard, American Society of Mechanical Engineers, New York (current edition).',
     'IEC60079': 'IEC 60079-0, Explosive atmospheres — Part 0: Equipment — General requirements, International Electrotechnical Commission, Geneva (current edition).',
+    'Chato1962': 'J.C. Chato, Laminar condensation inside horizontal and inclined tubes, ASHRAE Journal 4 (1962) 52–60.',
+    'Dobson1998': 'M.K. Dobson, J.C. Chato, Condensation in smooth horizontal tubes, Journal of Heat Transfer 120 (1998) 193–213. https://doi.org/10.1115/1.2830043',
+    'Alexiades2018': 'V. Alexiades, A.D. Solomon, Mathematical Modeling of Melting and Freezing Processes, CRC Press, Boca Raton (2018; first published by Hemisphere, 1993). https://doi.org/10.1201/9780203749449',
+    'Sobol2001': "I.M. Sobol', Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates, Mathematics and Computers in Simulation 55 (2001) 271–280. https://doi.org/10.1016/s0378-4754(00)00270-6",
+    'Jansen1999': 'M.J.W. Jansen, Analysis of variance designs for model output, Computer Physics Communications 117 (1999) 35–43. https://doi.org/10.1016/s0010-4655(98)00154-4',
+    'Saltelli2010': 'A. Saltelli, P. Annoni, I. Azzini, F. Campolongo, M. Ratto, S. Tarantola, Variance based sensitivity analysis of model output. Design and estimator for the total sensitivity index, Computer Physics Communications 181 (2010) 259–270. https://doi.org/10.1016/j.cpc.2009.09.018',
+    'Wagner1998': 'W. Wagner, A. Kruse, IAPWS Industrial Formulation 1997 for the Thermodynamic Properties of Water and Steam, in: Properties of Water and Steam, Springer, Berlin (1998) 7–37. https://doi.org/10.1007/978-3-662-03529-0_3',
 }

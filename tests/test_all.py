@@ -18,8 +18,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 import tamprc_mc as V1       # noqa: E402
 import tamprc_v2 as T        # noqa: E402
+import tamprc_v3 as X        # noqa: E402
 
 RESULTS = json.load(open(os.path.join(ROOT, "results", "results.json"), encoding="utf-8"))
+EXT = json.load(open(os.path.join(ROOT, "results", "results_ext.json"), encoding="utf-8"))
 V1R = json.load(open(os.path.join(ROOT, "results", "v1_results.json"), encoding="utf-8"))
 N_OK = 0
 
@@ -89,4 +91,47 @@ check("thermal mesh refinement converges (differences to the finest grid shrink 
 cv = RESULTS["coverage"]["rows"]
 check("coverage: no single 45 min deployment reaches 300 m in any sample (speed cap 0.1 m/s x 2,700 s = 270 m)", cv["45 min atmospheric|ablation|300"]["P_single"] == 0.0 and cv["45 min atmospheric|ablation|300"]["range_max_m"] <= 270.0 + 1e-9)
 check("coverage: a 90 min mission is capped at 540 m", cv["90 min evacuated|ablation|1000"]["range_max_m"] <= 540.0 + 1e-9 and cv["90 min evacuated|ablation|1000"]["P_single"] == 0.0)
+
+# ---- (v) revision studies (tamprc_v3.py)
+nm = EXT["bench_stefan"]["neumann"]
+check("enthalpy-method Stefan solver reproduces the exact Neumann front position within 0.1 %", abs(nm["rel_err"]) < 1e-3, "%.1e" % nm["rel_err"])
+check("quasi-steady melt front overestimates the Neumann front at Stefan number 1.47 (the reason for the no-drainage bias)", 0.1 < nm["rel_err_quasi_steady"] < 0.3)
+conv = EXT["bench_stefan"]["convective"]
+check("ablation melt-time formula agrees with the resolved enthalpy solver within 5 % (h = 1-10 kW/m2 K, 3-12 mm)", max(abs(r["err_ablation"]) for r in conv) < 0.05, "max %.3f" % max(abs(r["err_ablation"]) for r in conv))
+check("no-drainage formula is shorter than the solver by 18 +/- 2 % in every case (liquid sensible heat neglected)", all(abs(r["err_nodrain"] + 0.18) < 0.02 for r in conv))
+ar = EXT["bench_stefan"]["ablation_resolution"]
+check("ablation solution converges with cell size (2 um and 4 um agree within 1 %)", abs(ar[3]["t_ablation_numeric"] / ar[2]["t_ablation_numeric"] - 1) < 0.01)
+bc = EXT["bench_conduction"]
+check("conduction solver agrees with an independent stiff-ODE integration within 0.02 K (10 s backward Euler) and 0.002 K (0.625 s)", abs(bc["diff_10s_K"]) < 0.02 and abs(bc["diff_0p625s_K"]) < 0.002)
+rat = EXT["hmodels"]["h_ratio_chato_to_nusselt"]
+check("Chato coefficient is 0.74-0.77 of the Nusselt coefficient over 40-140 K", all(0.74 < v < 0.77 for v in rat.values()))
+with X.use_h("chato"):
+    swapped = V1.h_cond is not X._H_ORIG
+check("use_h swaps the coefficient inside the context and restores it afterwards", swapped and V1.h_cond is X._H_ORIG)
+pp = V1.sample_thermal(60, np.random.default_rng(2), 40.0, False)
+Dm = T.deposit_v2(60, np.random.default_rng(9), pp["Tsat"], pp["h_mult"], np.full(60, 2700.0), s_ret=0.0)
+d_fast = X.dynfilm(Dm, pp["Tsat"], pp["h_mult"], mu_factor=1e-9, dt=0.02)
+check("dynamic film with vanishing viscosity (instant drainage) reproduces the ablation melt time within 1 %", float(np.max(np.abs(d_fast["t_melt"] / Dm["t_melt"] - 1))) < 0.01)
+d_slow = X.dynfilm(Dm, pp["Tsat"], pp["h_mult"], mu_factor=1e6, dt=0.02)
+check("dynamic film with no drainage is slower than ablation and close to the no-drainage limit (median ratio 0.8-1.2)", bool(np.all(d_slow["t_melt"] > Dm["t_melt"])) and 0.8 < float(np.median(d_slow["t_melt"] / Dm["t_melt_nodrain"])) < 1.2)
+db = EXT["dynfilm"]["baseline"]
+check("dynamic-film range lies between the instant-removal and the no-drainage ranges", EXT["hmodels"]["models"]["nusselt"]["range_median_m_s0"] > db["range_median_m"] > RESULTS["film"]["nodrain"]["range_nodrain_median_m"])
+sf = EXT["dynfilm"]["steady_film_median_params"]
+check("series-resistance identity: q/q0 = 1/(1 + Pi_f) at the steady film", abs(sf["flux_ratio"] - 1.0 / (1.0 + sf["Pi_f"])) < 1e-12)
+check("median range falls to 100 m at Pi_f of about 0.34 (series-resistance model)", 0.25 < EXT["dynfilm"]["Pi_f_for_100m_median"] < 0.45)
+check("IF97 saturation pressure: 1.5538 MPa at 200 C and 0.10142 MPa at 100 C (steam tables)", abs(float(X.psat_MPa(200.0)) - 1.5538) < 2e-3 and abs(float(X.psat_MPa(100.0)) - 0.10142) < 1e-4)
+check("198 C corresponds to 1.49 MPa, not 1.55 MPa", abs(float(X.psat_MPa(198.0)) - 1.49) < 0.01)
+r = X.sobol_indices(lambda Z: Z[:, 0] + 2 * Z[:, 1], [lambda u: u, lambda u: u], m=12, nboot=20)
+check("Sobol estimator recovers the analytic indices of a linear test function (0.2, 0.8)", abs(r["S1"][0] - 0.2) < 0.02 and abs(r["S1"][1] - 0.8) < 0.02 and abs(r["ST"][1] - 0.8) < 0.02)
+for k in ("pack_temperature_45min", "range_with_film", "steam_with_film"):
+    check("Sobol first-order indices sum to about 1 (%s)" % k, 0.9 < sum(EXT["sobol"][k]["S1"]) < 1.1, "%.2f" % sum(EXT["sobol"][k]["S1"]))
+check("Pareto mask removes a dominated point", list(X.pareto_mask(np.array([[1.0, 1.0], [2.0, 2.0], [0.5, 3.0]]))) == [True, False, True])
+for m_ in EXT["design"]["by_melt"]:
+    check("every Pareto design satisfies the constraints (%s)" % m_, all(d["fits"] and d["P_safe"] >= 0.95 for d in EXT["design"]["designs"] if d["melt"] == m_ and d.get("pareto")))
+check("the dynamic film lowers the best feasible range below the instant-removal best", EXT["design"]["by_melt"]["dynamic film"]["best_feasible"]["range_median_m"] < EXT["design"]["by_melt"]["instant removal"]["best_feasible"]["range_median_m"])
+pt = EXT["ptcompat"]
+check("Class 150 steam-temperature limit lies below the model's 198 C", pt["Tmax_class150_C"] < 198.0, "%.0f C" % pt["Tmax_class150_C"])
+check("uncapped range: the set-point cap binds exactly in the draws with v_th >= 0.10 m/s", abs(EXT["uncapped"]["P_range_at_cap"] - (1 - EXT["uncapped"]["P_thermally_limited"])) < 1e-12)
+cr = EXT["corr"]["rows"]
+check("positive correlation of starting temperature and heat generation lowers the thermal probability", cr[1]["P_safe"] < cr[0]["P_safe"] < cr[2]["P_safe"] + 1e-9)
 print("\n%d checks passed" % N_OK)
